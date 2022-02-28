@@ -1,0 +1,9 @@
+services:
+  azure-ai-demo-gallery-app:
+    build:
+      context: .
+      args:
+        - az_cog_endpoint=${AZ_COG_ENDPOINT}
+        - az_cog_key=${AZ_COG_KEY}
+        - az_cog_region=${AZ_COG_REGION}
+    image: csairesearchssacr.azurecr.io/azure-ai-demo-gallery-app:latest

@@ -1,0 +1,11 @@
+streamlit
+streamlit_metrics
+pandas
+numpy
+seaborn
+matplotlib
+opencensus-ext-azure
+scikit-learn
+azure-keyvault
+azure-identity
+azure-ai-textanalytics
