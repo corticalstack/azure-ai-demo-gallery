@@ -5,7 +5,7 @@ import requests
 
 class App:
     def __init__(self):
-        if "config_loaded" not in st.session_state:
+        if "cog_endpoint" not in st.session_state:
             st.session_state.update({
                 "cog_endpoint": os.environ["AZ_COG_ENDPOINT"],
                 "cog_key": os.environ["AZ_COG_KEY"],
