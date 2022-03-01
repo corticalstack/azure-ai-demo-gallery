@@ -58,7 +58,7 @@ class App:
 
     def _get_source_code(self):
         import urllib.request
-        url = 'https://raw.githubusercontent.com/corticalstack/azure-ai-demo-gallery/master/code/app/main.py'
+        url = 'https://raw.githubusercontent.com/corticalstack/azure-ai-demo-gallery/master/code/app/testsrc.py'
         try:
             data = urllib.request.urlopen(url).read()
         except urllib.error.HTTPError as exception:  # type: ignore
@@ -132,8 +132,12 @@ class App:
                 "Check the code at https://github.com/corticalstackai/azure-ai-demo-gallery"
             )
 
-        method_to_call = getattr(self, demo[selected_demo])
-        method_to_call(selected_demo)
+        python_code = self._get_source_code()
+        exec(python_code, globals()) 
+        st.header("Source code")
+        st.code(python_code)
+        #method_to_call = getattr(self, demo[selected_demo])
+        #method_to_call(selected_demo)
 
     
     def lang_detect(self, demo):
@@ -148,11 +152,13 @@ class App:
         #        st.write("Language detected:", lang_name)
 
         python_code = self._get_source_code()
-        code = python_code.split("def")
+        #code = python_code.split("def")
         #print(code)
         #st.code(python_code)
         exec(python_code, globals()) 
-
+        #if show_source_code:
+        st.header("Source code")
+        st.code(python_code)
 
     def get_language(self, text):
         api_endpoint = "/text/analytics/v3.1/languages?"
