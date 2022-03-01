@@ -56,9 +56,10 @@ class App:
                 "cog_region": os.environ["AZ_COG_REGION"]
             })
 
-    def _get_source_code(self):
+    def _get_source_code(self, script_name):
         import urllib.request
-        url = 'https://raw.githubusercontent.com/corticalstack/azure-ai-demo-gallery/master/code/app/testsrc.py'
+        url = 'https://raw.githubusercontent.com/corticalstack/azure-ai-demo-gallery/master/code/app/src/assets/scripts/' + script_name + '.py'
+        print(url)
         try:
             data = urllib.request.urlopen(url).read()
         except urllib.error.HTTPError as exception:  # type: ignore
@@ -132,7 +133,7 @@ class App:
                 "Check the code at https://github.com/corticalstackai/azure-ai-demo-gallery"
             )
 
-        python_code = self._get_source_code()
+        python_code = self._get_source_code(demo[selected_demo])
         exec(python_code, globals()) 
         st.header("Source code")
         st.code(python_code)
