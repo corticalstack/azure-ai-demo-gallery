@@ -3,13 +3,46 @@ import streamlit as st
 from streamlit.server.server import Server
 from streamlit.script_run_context import add_script_run_ctx
 import pandas as pd
-import re
-import http.client, base64, json, urllib
-from urllib import request, parse, error
+import http.client
+#from urllib import request, parse, error
 from azure.core.credentials import AzureKeyCredential
 from azure.ai.textanalytics import TextAnalyticsClient
-import requests, json
+import requests
+import json
+import azure.cognitiveservices.speech as speech_sdk
 
+from streamlit_webrtc import VideoProcessorBase, WebRtcMode, webrtc_streamer, WebRtcStreamerContext
+
+from aiortc.contrib.media import MediaRecorder
+
+import queue
+
+import soundfile as sf
+import numpy as np
+import matplotlib.pyplot as plt
+
+import queue
+from pathlib import Path
+import time
+import pydub
+
+
+TMP_DIR = Path('temp')
+if not TMP_DIR.exists():
+    TMP_DIR.mkdir(exist_ok=True, parents=True)
+
+MEDIA_STREAM_CONSTRAINTS = {
+    "video": False,
+    "audio": {
+        # these setting doesn't work
+        # "sampleRate": 48000,
+        # "sampleSize": 16,
+        # "channelCount": 1,
+        "echoCancellation": False,  # don't turn on else it would reduce wav quality
+        "noiseSuppression": True,
+        "autoGainControl": True,
+    },
+}
 
 class App:
     def __init__(self):
@@ -22,7 +55,6 @@ class App:
                 "cog_key": os.environ["AZ_COG_KEY"],
                 "cog_region": os.environ["AZ_COG_REGION"]
             })
-
 
     def _get_session_http_headers(self):
         headers = {
@@ -53,12 +85,16 @@ class App:
             st.session_state.http_headers = self._get_session_http_headers()
         #st.title("test")
 
+        if "audio_buffer" not in st.session_state:
+            st.session_state["audio_buffer"] = pydub.AudioSegment.empty()
+
         topic_demo = {"Language": {"Language Detection": "lang_detect", 
                                    "Sentiment Analysis": "sentiment_analysis",
                                    "Key Phrases": "key_phrases",
                                    "Entity Extraction": "entity_extraction",
                                    "Entity Linking": "entity_linking",
-                                   "Text Translation": "text_translation"},
+                                   "Text Translation": "text_translation",
+                                   "Speech to Text": "speech_to_text"},
                       "Computer Vision": {"Object Classification": "object_classification", 
                                           "Object Detection": "object_detection" }}
 
@@ -70,7 +106,6 @@ class App:
             )
             
             demo = topic_demo[selected_topic]
-            print(demo)
             selected_demo = st.sidebar.selectbox(
                 "Select Demo",
                 options=sorted(demo)
@@ -207,9 +242,105 @@ class App:
         print(response)
         translation = response[0]["translations"][0]["text"]
         st.write(translation)
-       
+
+    def aiortc_audio_recorder(self, wavpath):
+        def recorder_factory():
+            return MediaRecorder(wavpath)
+
+        webrtc_ctx: WebRtcStreamerContext = webrtc_streamer(
+            key="sendonly-audio",
+            # mode=WebRtcMode.SENDONLY,
+            mode=WebRtcMode.SENDRECV,
+            in_recorder_factory=recorder_factory,
+            media_stream_constraints=MEDIA_STREAM_CONSTRAINTS,
+        )
 
 
+        def save_frames_from_audio_receiver(wavpath):
+            webrtc_ctx = webrtc_streamer(
+                key="sendonly-audio",
+                mode=WebRtcMode.SENDONLY,
+                media_stream_constraints=MEDIA_STREAM_CONSTRAINTS,
+            )
+
+            if "audio_buffer" not in st.session_state:
+                st.session_state["audio_buffer"] = pydub.AudioSegment.empty()
+
+            status_indicator = st.empty()
+            lottie = False
+            while True:
+                if webrtc_ctx.audio_receiver:
+                    try:
+                        audio_frames = webrtc_ctx.audio_receiver.get_frames(timeout=1)
+                    except queue.Empty:
+                        status_indicator.info("No frame arrived.")
+                        continue
+
+                    for i, audio_frame in enumerate(audio_frames):
+                        sound = pydub.AudioSegment(
+                            data=audio_frame.to_ndarray().tobytes(),
+                            sample_width=audio_frame.format.bytes,
+                            frame_rate=audio_frame.sample_rate,
+                            channels=len(audio_frame.layout.channels),
+                        )
+                        st.session_state["audio_buffer"] += sound
+                else:
+                    lottie = True
+                    break
+
+            audio_buffer = st.session_state["audio_buffer"]
+
+            if not webrtc_ctx.state.playing and len(audio_buffer) > 0:
+                audio_buffer.export(wavpath, format="wav")
+                st.session_state["audio_buffer"] = pydub.AudioSegment.empty()
+
+
+    def display_wavfile(self, wavpath):
+        audio_bytes = open(wavpath, 'rb').read()
+        file_type = Path(wavpath).suffix
+        st.audio(audio_bytes, format=f'audio/{file_type}', start_time=0)
+
+
+    def plot_wav(self, wavpath):
+        audio, sr = sf.read(str(wavpath))
+        fig = plt.figure()
+        plt.plot(audio)
+        plt.xticks(
+            np.arange(0, audio.shape[0], sr / 2), np.arange(0, audio.shape[0] / sr, 0.5)
+        )
+        plt.xlabel('time')
+        st.pyplot(fig)
+
+   
+
+    def speech_to_text(self, demo):
+        print("Speech to text")
+        st.markdown('# recorder')
+    
+        if "wavpath" not in st.session_state:
+            cur_time = time.strftime("%Y-%m-%d_%H:%M:%S", time.localtime())
+            tmp_wavpath = TMP_DIR / f'{cur_time}.wav'
+            st.session_state["wavpath"] = str(tmp_wavpath)
+
+        wavpath = st.session_state["wavpath"]
+
+        self.aiortc_audio_recorder(wavpath)  # first way
+        # save_frames_from_audio_receiver(wavpath)  # second way
+
+        if Path(wavpath).exists():
+           
+        
+            speech_config = speech_sdk.SpeechConfig(st.session_state.cog_key, st.session_state.cog_region)
+            print('Ready to use speech service in:', speech_config.region)
+            audio_config = speech_sdk.AudioConfig(filename=wavpath)
+            speech_recognizer = speech_sdk.SpeechRecognizer(speech_config, audio_config)
+            speech = speech_recognizer.recognize_once_async().get()
+            command = speech.text
+            print(command)
+            st.write(command)
+            st.markdown(wavpath)
+            self.display_wavfile(wavpath)
+            self.plot_wav(wavpath)
 
 if __name__ == "__main__":
     app = App()
