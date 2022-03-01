@@ -18,6 +18,11 @@ MEDIA_STREAM_CONSTRAINTS = {
     },
 }
 
+VOICE_PACK = {
+    "fr": "fr-FR-HenriNeural",
+    "es": "es-ES-ElviraNeural",
+    "de": "de-DE-KatjaNeural"
+}
 class App:
     def __init__(self):
         if "cog_key" not in st.session_state:
@@ -38,26 +43,6 @@ class App:
             else:
                 st.write('\n')
 
-    def wav_file_player(self, wav_file):
-        audio_bytes = open(wav_file, 'rb').read()
-        file_type = Path(wav_file).suffix
-        st.audio(audio_bytes, format=f'audio/{file_type}', start_time=0)
-
-    def plot_wav(self, wav_file):
-        audio, sr = sf.read(str(wav_file))
-        fig = plt.figure(figsize= (8, 4), dpi=300)
-     
-        plt.plot(audio, color="red")
-        plt.xticks(np.arange(0, audio.shape[0], sr / 2), np.arange(0, audio.shape[0] / sr, 0.5))
-        plt.xlabel('Time')
-        plt.ylabel('Amplitude')
-        plt.tight_layout()
-      
-        # Workaround to resize array-based plot
-        buf = BytesIO()
-        fig.savefig(buf, format="png")
-        st.image(buf)
-
     def webrtc_audio_recorder(self, wavpath):
         def recorder_factory():
             return MediaRecorder(wavpath)
@@ -72,10 +57,15 @@ class App:
     def main(self):
         st.write("Example of real-time quick and accurate audio transcription to text, which could then be used for search, analytics and inititating events.")
         st.write("Press START to record from your selected audio input device")
-        st.write("For example, you could say 'Switch off the bedside lamps' or 'Play Ive got you under my skin by Frank Sinatra'")
+        st.write("For example, you could say 'Switch off the bedside lamps' or 'Play Blue Moon by Frank Sinatra'")
+        st.write("Once translation completes, press play to hear the results in the locale language voice")
        
-        wavpath = "temp/speech_to_text_audio.wav"
-        self.webrtc_audio_recorder(wavpath)
+        selected_target_lang = st.selectbox('Target Language',
+                ('fr', 'es', 'de'))
+
+        source_wavpath = "temp/speech_to_text_audio.wav"
+        target_wavpath = "temp/speech_to_speech_audio.wav"
+        self.webrtc_audio_recorder(source_wavpath)
   
         status_indicator = st.empty()
         if self.webrtc_ctx.state.playing:
@@ -85,25 +75,41 @@ class App:
 
         if st.session_state['recording_status'] == 'recording':
             st.session_state['recording_status'] = None
-            if Path(wavpath).exists():
+            if Path(source_wavpath).exists():
                 speech_config = speech_sdk.SpeechConfig(st.session_state.cog_key, st.session_state.cog_region)
-                audio_config = speech_sdk.AudioConfig(filename=wavpath)
+                audio_config = speech_sdk.AudioConfig(filename=source_wavpath)
                 speech_recognizer = speech_sdk.SpeechRecognizer(speech_config, audio_config)
                 speech = speech_recognizer.recognize_once_async().get()
                 audio_transcription = speech.text
                 
                 self.v_spacer(height=2, sb=False)
-                st.markdown('**Audio To Text Transcription**')
+                st.markdown('**Source Audio To Text Transcription**')
                 st.write(audio_transcription)
-                
+
+                translation_config = speech_sdk.translation.SpeechTranslationConfig(st.session_state.cog_key, st.session_state.cog_region)
+                translation_config.speech_recognition_language = 'en-GB'
+                translation_config.add_target_language(selected_target_lang)
+
                 self.v_spacer(height=2, sb=False)
-                st.markdown('**Recorded Audio Player**')
-                self.wav_file_player(wavpath)
-                
+                st.markdown('**Target Text Transcription**')
+                audio_config = speech_sdk.AudioConfig(filename=source_wavpath)
+                translator = speech_sdk.translation.TranslationRecognizer(translation_config, audio_config)
+                result = translator.recognize_once_async().get()
+                translation = result.translations[selected_target_lang]
+                st.write(translation)
+
                 self.v_spacer(height=2, sb=False)
-                st.markdown('**Spectrogram**')
-                self.plot_wav(wavpath)
-        
+                st.markdown('**Target Audio Synthesis**')
+                file_config = speech_sdk.audio.AudioOutputConfig(filename=target_wavpath)
+                speech_config = speech_sdk.SpeechConfig(st.session_state.cog_key, st.session_state.cog_region)
+                speech_config.speech_synthesis_voice_name = VOICE_PACK[selected_target_lang]
+                speech_synthesizer = speech_sdk.SpeechSynthesizer(speech_config, audio_config=file_config)
+                speak = speech_synthesizer.speak_text_async(translation).get()
+               
+                audio_file = open(target_wavpath, 'rb')
+                audio_bytes = audio_file.read()
+                st.audio(audio_bytes, format='audio/ogg')   
+
     
 if __name__ == "__main__":
     app = App()
