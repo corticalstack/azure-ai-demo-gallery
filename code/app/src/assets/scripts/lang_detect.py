@@ -1,7 +1,7 @@
 import os
-import streamlit as st
 import http.client
 import json
+import streamlit as st
 
 
 class App:
@@ -15,16 +15,19 @@ class App:
 
     def main(self):
         # Demo example using the REST api rather than the Python SDK
-        input_text = st.text_input('Input Text', 'Hello')
+        st.write("Language detection can detect the language a text is written in, and returns a language code with confidence score.")
+        input_text = st.text_input('Enter input text in any language', 'Bonsoir')
         if input_text:
-            lang_name, _ = self.get_language(input_text)
+            lang_name, _, confidence_score = self.get_language(input_text)
             if lang_name:
                 st.write("Language detected:", lang_name)
+                st.write("Confidence score:", confidence_score)
 
     def get_language(self, text):
         api_endpoint = "/text/analytics/v3.1/languages?"
         lang_name = None
         lang_iso6391Name = None
+        confidence_score = None
 
         try:
             jsonBody = {
@@ -52,13 +55,14 @@ class App:
                     print(document)
                     lang_name = document["detectedLanguage"]["name"]
                     lang_iso6391Name = document["detectedLanguage"]["iso6391Name"]
+                    confidence_score = document["detectedLanguage"]["confidenceScore"]
 
             conn.close()
 
         except Exception as ex:
             st.write(ex)
         
-        return lang_name, lang_iso6391Name
+        return lang_name, lang_iso6391Name, confidence_score
 
 
 if __name__ == "__main__":
