@@ -46,7 +46,7 @@ MEDIA_STREAM_CONSTRAINTS = {
 
 class App:
     def __init__(self):
-        st.set_page_config(page_title="Azure A.I. Demo Gallery", page_icon="src/assets/img/logo.png", layout="wide", initial_sidebar_state="auto")
+        #st.set_page_config(page_title="Azure A.I. Demo Gallery", page_icon="src/assets/img/logo.png", layout="wide", initial_sidebar_state="auto")
 
         if "config_loaded" not in st.session_state:
             st.session_state.update({
@@ -55,6 +55,16 @@ class App:
                 "cog_key": os.environ["AZ_COG_KEY"],
                 "cog_region": os.environ["AZ_COG_REGION"]
             })
+
+    def _get_source_code(self):
+        import urllib.request
+        url = 'https://raw.githubusercontent.com/corticalstack/azure-ai-demo-gallery/master/code/app/main.py'
+        try:
+            data = urllib.request.urlopen(url).read()
+        except urllib.error.HTTPError as exception:  # type: ignore
+            pass
+
+        return data.decode("utf-8")
 
     def _get_session_http_headers(self):
         headers = {
@@ -102,6 +112,8 @@ class App:
 
         with st.sidebar:
             st.title("Gallery")
+            show_source_code = st.checkbox("Show Source Code", True)
+
             selected_topic = st.sidebar.selectbox(
                 "Select Topic",
                 options=sorted(topic_demo.keys())
@@ -112,9 +124,11 @@ class App:
                 "Select Demo",
                 options=sorted(demo)
             )
+            
             st.sidebar.title("About")
             st.sidebar.info(
-                "This app demonstrates key Azure A.I. service features.\n\n"
+                "This app demonstrates a variety of Azure A.I. services in the domains of language & vision.\n\n"
+                "Developed by Jon-Paul Boyd. \n\n"
                 "Check the code at https://github.com/corticalstackai/azure-ai-demo-gallery"
             )
 
@@ -125,13 +139,20 @@ class App:
     def lang_detect(self, demo):
         # Demo example using the REST api rather than the Python SDK
        
-        st.title(demo)
+        #st.title(demo)
 
-        input_text = st.text_input('Input Text', 'Hello')
-        if input_text:
-            lang_name, _ = self.get_language(input_text)
-            if lang_name:
-                st.write("Language detected:", lang_name)
+        #input_text = st.text_input('Input Text', 'Hello')
+        #if input_text:
+        #    lang_name, _ = self.get_language(input_text)
+        #    if lang_name:
+        #        st.write("Language detected:", lang_name)
+
+        python_code = self._get_source_code()
+        code = python_code.split("def")
+        #print(code)
+        #st.code(python_code)
+        exec(python_code, globals()) 
+
 
     def get_language(self, text):
         api_endpoint = "/text/analytics/v3.1/languages?"
