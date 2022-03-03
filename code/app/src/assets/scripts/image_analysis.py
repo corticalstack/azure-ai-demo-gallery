@@ -26,7 +26,7 @@ class App:
     
     def main(self):
         st.write("An example of using the Azure Computer Vision Image Analysis service to extract a wide variety of visual features from images")
-        st.markdown("**CLICK** any image below to see its features")
+        st.markdown("**CLICK** any image below to see its features with associated confidence level")
 
         features = [VisualFeatureTypes.description,
                     VisualFeatureTypes.tags,
