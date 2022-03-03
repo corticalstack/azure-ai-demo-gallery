@@ -13,7 +13,13 @@ ENV AZ_COG_REGION=$az_cog_region
 WORKDIR /app
 ADD . ./
 
-RUN pip install -r requirements.txt
+RUN apt-get update && \
+    apt-get -y upgrade
+
+RUN apt-get --yes install libsndfile1
+
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt
 
 RUN mkdir ~/.streamlit
 RUN cp .streamlit/config.prod.toml ~/.streamlit/config.toml
@@ -22,4 +28,4 @@ EXPOSE 3000 80 8501
 WORKDIR /app
 
 ENTRYPOINT ["streamlit", "run"]
-CMD ["main.py"]
+CMD ["app.py"]

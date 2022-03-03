@@ -49,29 +49,33 @@ class App:
 
         self.webrtc_ctx: WebRtcStreamerContext = webrtc_streamer(
             key="sendonly-audio",
-            mode=WebRtcMode.SENDRECV,
+            mode=WebRtcMode.SENDONLY,
+            rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
             in_recorder_factory=recorder_factory,
             media_stream_constraints=MEDIA_STREAM_CONSTRAINTS,
         )
 
     def main(self):
-        st.write("Example of real-time quick and accurate audio transcription to text, which could then be used for search, analytics and inititating events.")
-        st.write("Press START to record from your selected audio input device")
-        st.write("For example, you could say 'Switch off the bedside lamps' or 'Play Blue Moon by Frank Sinatra'")
+        st.write("Example of real-time quick and accurate audio transcription to text, which could then be used for search, analytics and inititating events")
+        st.markdown("Press **START** to record from your selected audio input device")
+        st.markdown("For example, you could say **NASA an independent agency of the U.S. government responsible for the civilian space program** or **The Empire State Building is a 102-story Art Deco skyscraper in Midtown Manhattan in New York City**")
+        st.markdown("Note currently **the initialisation of the audio recorder is slow**, please wait up to 30s for the Status Indicator to change from **Not Recording** to **Recording**")
         st.write("Once translation completes, press play to hear the results in the locale language voice")
        
         selected_target_lang = st.selectbox('Target Language',
                 ('fr', 'es', 'de'))
 
-        source_wavpath = "temp/speech_to_text_audio.wav"
-        target_wavpath = "temp/speech_to_speech_audio.wav"
+        source_wavpath = "temp/speech_source.wav"
+        target_wavpath = "temp/speech_target.wav"
         self.webrtc_audio_recorder(source_wavpath)
   
         status_indicator = st.empty()
         if self.webrtc_ctx.state.playing:
-            status_indicator.info("Recording...")
+            status_indicator.error("Status: Recording...now say something")
             st.session_state['recording_status'] = 'recording'
             return
+        
+        status_indicator.info("Status: Not Recording")
 
         if st.session_state['recording_status'] == 'recording':
             st.session_state['recording_status'] = None

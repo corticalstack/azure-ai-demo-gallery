@@ -46,7 +46,7 @@ class App:
             st.sidebar.info(
                 "This app demonstrates a variety of Azure A.I. services in the domains of language & vision.\n\n"
                 "Developed by Jon-Paul Boyd. \n\n"
-                "Check the code at https://github.com/corticalstackai/azure-ai-demo-gallery"
+                "Check the code at https://github.com/corticalstack/azure-ai-demo-gallery"
             )
 
         python_code = self._get_source_code(demo[selected_demo])
