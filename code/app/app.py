@@ -36,19 +36,6 @@ class App:
                                                              ('Object Detection','object_detection')]))
                       ])
 
-        #topic_demo = OrderedDict([
-        #    ("Language": OrderedDict([("Language Detection", "lang_detect"), 
-        #                           ("Sentiment Analysis", "sentiment_analysis"),
-        #                           ("Key Phrase Extraction", "key_phrases"),
-        #                           ("Entity Extraction", "entity_extraction"),
-        #                           ("Entity Linking", "entity_linking"),
-        #                           ("Text Translation", "text_translation"),
-        #                           ("Speech to Text", "speech_to_text"),
-        #                           ("Text to Speech", "text_to_speech"),
-        #                           ("Speech to Speech Translation", "speech_to_speech")])),
-        #    ("Computer Vision": OrderedDict([("Object Classification", "object_classification"), 
-        #                                  ("Object Detection", "object_detection")]))])
-
         with st.sidebar:
             st.title("Gallery")
             show_source_code = st.checkbox("Show Source Code", False)
@@ -84,7 +71,7 @@ class App:
             if show_source_code:
                 st.write("\n")
                 st.subheader("Source code")
-                st.code(python_code)
+                st.code(python_code, language='python')
 
 
 if __name__ == "__main__":

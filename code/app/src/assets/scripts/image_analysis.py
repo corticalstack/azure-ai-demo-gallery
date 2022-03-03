@@ -1,9 +1,10 @@
 import os
 import streamlit as st
+from st_clickable_images import clickable_images
 from azure.cognitiveservices.vision.computervision import ComputerVisionClient
 from azure.cognitiveservices.vision.computervision.models import VisualFeatureTypes
 from msrest.authentication import CognitiveServicesCredentials
-
+import pandas as pd
 
 class App:
     def __init__(self):
@@ -16,9 +17,16 @@ class App:
         credential = CognitiveServicesCredentials(st.session_state.cog_key) 
         self.cv_client = ComputerVisionClient(st.session_state.cog_endpoint, credential)
 
+    def v_spacer(self, height, sb=False) -> None:
+        for _ in range(height):
+            if sb:
+                st.sidebar.write('\n')
+            else:
+                st.write('\n')
     
     def main(self):
-        st.write("Blaa")
+        st.write("An example of using the Azure Computer Vision Image Analysis service to extract a wide variety of visual features from images")
+        st.markdown("**CLICK** any image below to see its features")
 
         features = [VisualFeatureTypes.description,
                     VisualFeatureTypes.tags,
@@ -27,14 +35,6 @@ class App:
                     VisualFeatureTypes.objects,
                     VisualFeatureTypes.adult]
         
-        #with open('samples/img/new-york-city.jpg', mode="rb") as image_data:
-        #   analysis = self.cv_client.analyze_image_in_stream(image_data , features)
-           
-
-        
-    
-        from st_clickable_images import clickable_images
-
         images = [
                 "https://images.unsplash.com/photo-1597848212624-a19eb35e2651?w=700",
                 "https://images.unsplash.com/photo-1546436836-07a91091f160?w=700",
@@ -57,7 +57,8 @@ class App:
                 "https://images.unsplash.com/photo-1540778339538-067eae485e9f?w=700",
                 "https://images.unsplash.com/photo-1545631757-8b75025a310e?w=700",
                 "https://images.unsplash.com/photo-1615535248235-253d93813ca5?w=700",
-                "https://m.media-amazon.com/images/I/818isgqqL3L._AC_SX466_.jpg?w=700"
+                "https://m.media-amazon.com/images/I/818isgqqL3L._AC_SX466_.jpg?w=700",
+                "https://www.lydiamonks.com/wp-content/uploads/2014/06/sugarlump-and-unicorn_1.jpg?w=700"
             ]
         clicked = clickable_images(
             images,
@@ -66,58 +67,60 @@ class App:
             img_style={"margin": "5px", "height": "200px"},
         )
 
-        st.markdown(f"Image #{images[clicked]} clicked" if clicked > -1 else "No image clicked")
-        st.markdown(f"Image #{clicked} clicked" if clicked > -1 else "No image clicked")
+        st.markdown(f"**You clicked image #{clicked}**" if clicked > -1 else "**No image clicked**")
 
         analysis = self.cv_client.analyze_image(images[clicked] , features)
-        # Get image description
-        for caption in analysis.description.captions:
-            st.write("Description: '{}' (confidence: {:.2f}%)".format(caption.text, caption.confidence * 100))
+        
+
+        if (len(analysis.description.captions) > 0):
+            self.v_spacer(height=2, sb=False)
+            st.markdown("**Description**")
+            for caption in analysis.description.captions:
+                st.write("{} ({:.2f}%)".format(caption.text, caption.confidence * 100))
+
 
         if (len(analysis.tags) > 0):
-            st.write("Tags: ")
+            self.v_spacer(height=2, sb=False)
+            st.markdown("**Tags**")
             for tag in analysis.tags:
-                st.write(" -'{}' (confidence: {:.2f}%)".format(tag.name, tag.confidence * 100))
+                st.write("- {} ({:.2f}%)".format(tag.name, tag.confidence * 100))
 
 
-        # Get image categories (including celebrities and landmarks)
         if (len(analysis.categories) > 0):
-            print("Categories:")
+            self.v_spacer(height=2, sb=False)
+            st.markdown("**Categories**")
             landmarks = []
             celebrities = []
             for category in analysis.categories:
-                # Print the category
-                st.write(" -'{}' (confidence: {:.2f}%)".format(category.name, category.score * 100))
+                st.write("- {} ({:.2f}%)".format(category.name, category.score * 100))
                 if category.detail:
-                    # Get landmarks in this category
                     if category.detail.landmarks:
                         for landmark in category.detail.landmarks:
                             if landmark not in landmarks:
                                 landmarks.append(landmark)
 
-                    # Get celebrities in this category
                     if category.detail.celebrities:
                         for celebrity in category.detail.celebrities:
                             if celebrity not in celebrities:
                                 celebrities.append(celebrity)
 
-            # If there were landmarks, list them
             if len(landmarks) > 0:
-                st.write("Landmarks:")
+                self.v_spacer(height=2, sb=False)
+                st.markdown("**Landmarks**")
                 for landmark in landmarks:
-                    st.write(" -'{}' (confidence: {:.2f}%)".format(landmark.name, landmark.confidence * 100))
+                    st.write("- {} ({:.2f}%)".format(landmark.name, landmark.confidence * 100))
 
-            # If there were celebrities, list them
             if len(celebrities) > 0:
-                st.write("Celebrities:")
+                self.v_spacer(height=2, sb=False)
+                st.markdown("**Celebrities**")
                 for celebrity in celebrities:
-                    st.write(" -'{}' (confidence: {:.2f}%)".format(celebrity.name, celebrity.confidence * 100))
+                    st.write("- {} ({:.2f}%)".format(celebrity.name, celebrity.confidence * 100))
 
-        # Get brands in the image
         if (len(analysis.brands) > 0):
-            st.write("Brands: ")
+            self.v_spacer(height=2, sb=False)
+            st.markdown("**Brands**")
             for brand in analysis.brands:
-                st.write(" -'{}' (confidence: {:.2f}%)".format(brand.name, brand.confidence * 100))
+                st.write("- {} ({:.2f}%)".format(brand.name, brand.confidence * 100))
 
 
 if __name__ == "__main__":
