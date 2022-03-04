@@ -31,9 +31,10 @@ class App:
                                                       ("Text to Speech", "text_to_speech"),
                                                       ("Speech to Text", "speech_to_text"),
                                                       ("Speech to Speech", "speech_to_speech")])),
-                            ('Computer Vision', OrderedDict([('Image Analysis','image_analysis'),
-                                                             ('Face Analysis','face_analysis'),
-                                                               ('Simple OCR','simple_ocr')]))
+                            ('Computer Vision', OrderedDict([("Image Analysis", "image_analysis"),
+                                                             ("Face Analysis", "face_analysis"),
+                                                             ("Simple OCR", "simple_ocr"),
+                                                             ("Complex OCR", "complex_ocr")]))
                                                            
                       ])
 
