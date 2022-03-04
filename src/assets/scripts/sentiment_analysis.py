@@ -13,7 +13,6 @@ class App:
                 "cog_region": os.environ["AZ_COG_REGION"]
             })
 
-    
     def main(self):
         st.write("Mine text to see what people are thinking based on their hotel reviews from Booking.com")
 

@@ -1,13 +1,10 @@
 import os
 import time
-import matplotlib.pyplot as plt
-from PIL import Image, ImageDraw
 import streamlit as st
 from st_clickable_images import clickable_images
 from azure.cognitiveservices.vision.computervision import ComputerVisionClient
 from azure.cognitiveservices.vision.computervision.models import OperationStatusCodes
 from msrest.authentication import CognitiveServicesCredentials
-
 
 
 class App:
@@ -35,7 +32,8 @@ class App:
         images = [
                 "https://csairesearchssst.blob.core.windows.net/samples/speccoll.jpg",
                 "https://csairesearchssst.blob.core.windows.net/samples/bowers.jpg",
-                "https://csairesearchssst.blob.core.windows.net/samples/robertson.jpg"
+                "https://csairesearchssst.blob.core.windows.net/samples/robertson.jpg",
+                "https://csairesearchssst.blob.core.windows.net/samples/bookflipping.png"
             ]
         clicked = clickable_images(
             images,

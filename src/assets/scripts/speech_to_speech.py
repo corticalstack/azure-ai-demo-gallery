@@ -1,9 +1,5 @@
 import os
-from io import BytesIO
 from pathlib import Path
-import numpy as np
-import matplotlib.pyplot as plt
-import soundfile as sf
 from aiortc.contrib.media import MediaRecorder
 from streamlit_webrtc import WebRtcMode, webrtc_streamer, WebRtcStreamerContext
 import streamlit as st

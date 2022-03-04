@@ -34,6 +34,7 @@ class App:
             for entity in entities[:10]:
                  st.write('{} ({})'.format(entity.text, entity.category))
 
+
 if __name__ == "__main__":
     app = App()
     app.main()

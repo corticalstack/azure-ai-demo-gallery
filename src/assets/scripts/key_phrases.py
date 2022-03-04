@@ -33,6 +33,7 @@ class App:
             for phrase in phrases[:5]:
                 st.write(phrase)
 
+
 if __name__ == "__main__":
     app = App()
     app.main()
