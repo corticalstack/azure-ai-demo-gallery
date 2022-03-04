@@ -32,8 +32,9 @@ class App:
                                                       ("Speech to Text", "speech_to_text"),
                                                       ("Speech to Speech", "speech_to_speech")])),
                             ('Computer Vision', OrderedDict([('Image Analysis','image_analysis'),
-                                                             ('Object Classification','object_classification'),
-                                                             ('Object Detection','object_detection')]))
+                                                             ('Face Analysis','face_analysis'),
+                                                               ('Simple OCR','simple_ocr')]))
+                                                           
                       ])
 
         with st.sidebar:
@@ -54,6 +55,8 @@ class App:
             st.sidebar.title("About")
             st.sidebar.info(
                 "This app demonstrates a variety of Azure A.I. services in the domains of language & vision.\n\n"
+                "Please note this is a work in progress. Further Azure A.I. examples will be continuously added.\n\n"
+                "Also note the app consumes compute from my own Azure sub, so I downscale the app plan every evening to save costs.\n\n"
                 "Developed by Jon-Paul Boyd. \n\n"
                 "Check the code at https://github.com/corticalstack/azure-ai-demo-gallery"
             )

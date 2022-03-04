@@ -1,6 +1,7 @@
 streamlit
 streamlit_metrics
 streamlit-webrtc
+st-clickable-images
 pandas
 numpy
 seaborn
@@ -12,6 +13,7 @@ azure-identity
 azure-ai-textanalytics
 azure-cognitiveservices-speech
 azure-cognitiveservices-vision-computervision
+azure-cognitiveservices-vision-face
 opencv-python
 librosa
 SoundFile
