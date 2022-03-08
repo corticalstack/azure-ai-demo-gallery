@@ -1,13 +1,18 @@
-import streamlit as st
+import os
+import time
 import logging
 from collections import OrderedDict
-
+import streamlit as st
 logging.basicConfig(format="%(asctime)s - %(message)s", level=logging.INFO)
 
 
 class App:
     def __init__(self):
         st.set_page_config(page_title="Azure A.I. Demo Gallery", page_icon="src/assets/img/logo.png", layout="wide", initial_sidebar_state="auto")
+        if "last_modified" not in st.session_state:
+            st.session_state.update({
+                "last_modified": time.strftime('%d/%m/%Y', time.gmtime(os.path.getmtime(os.path.basename(__file__))))
+            })
 
     def _get_source_code(self, script_name):
         file = open("src/assets/scripts/" + script_name + '.py', "r")
@@ -15,12 +20,6 @@ class App:
         return content
 
     def main(self):
-        domain = OrderedDict([('de', 'Germany'),
-                      ('sk', 'Slovakia'),
-                      ('hu', 'Hungary'),
-                      ('us', 'United States'),
-                      ('no', 'Norway')])
-
         topic_demo = OrderedDict([
                             ('Language', OrderedDict([('Language Detection','lang_detect'),
                                                       ('Key Phrase Extraction','key_phrases'),
@@ -34,8 +33,9 @@ class App:
                             ('Computer Vision', OrderedDict([("Image Analysis", "image_analysis"),
                                                              ("Face Analysis", "face_analysis"),
                                                              ("Simple OCR", "simple_ocr"),
-                                                             ("Complex OCR", "complex_ocr")]))
-                                                           
+                                                             ("Complex OCR", "complex_ocr")])),
+                            ('Prediction', OrderedDict([("Classification", "classification"),
+                                                        ("Regression", "regression")]))
                       ])
 
         with st.sidebar:
@@ -56,10 +56,11 @@ class App:
             st.sidebar.title("About")
             st.sidebar.info(
                 "This app demonstrates a variety of Azure A.I. services in the domains of language & vision.\n\n"
-                "Please note this is a work in progress. Further Azure A.I. examples will be continuously added.\n\n"
-                "Also note the app consumes compute from my own Azure sub, so I downscale the app plan every evening to save costs.\n\n"
+                "Please note the app consumes compute from my own Azure sub, so it is downscaled each evening to reduce costs.\n\n"
+                "Check the code at https://github.com/corticalstack/azure-ai-demo-gallery\n\n"
                 "Developed by Jon-Paul Boyd. \n\n"
-                "Check the code at https://github.com/corticalstack/azure-ai-demo-gallery"
+                "This is a work in progress. Further Azure A.I. examples will be continuously added.\n\n"
+                "Last modified: {}".format(st.session_state.last_modified)
             )
 
         python_code = self._get_source_code(demo[selected_demo])

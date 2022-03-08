@@ -6,4 +6,6 @@ services:
         - az_cog_endpoint=${AZ_COG_ENDPOINT}
         - az_cog_key=${AZ_COG_KEY}
         - az_cog_region=${AZ_COG_REGION}
+        - az_mlw_infer_endpoint_predict_framingham_heart=${AZ_MLW_INFER_ENDPOINT_PREDICT_FRAMINGHAM_HEART}
+        - az_mlw_infer_endpoint_key_predict_framingham_heart=${AZ_MLW_INFER_ENDPOINT_KEY_PREDICT_FRAMINGHAM_HEART}
     image: csairesearchssacr.azurecr.io/azure-ai-demo-gallery-app:latest

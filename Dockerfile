@@ -4,10 +4,14 @@ FROM python:3.7-slim
 ARG az_cog_endpoint
 ARG az_cog_key
 ARG az_cog_region
+ARG az_mlw_infer_endpoint_predict_framingham_heart
+ARG az_mlw_infer_endpoint_key_predict_framingham_heart
 
 ENV AZ_COG_ENDPOINT=$az_cog_endpoint
 ENV AZ_COG_KEY=$az_cog_key
 ENV AZ_COG_REGION=$az_cog_region
+ENV AZ_MLW_INFER_ENDPOINT_PREDICT_FRAMINGHAM_HEART=$az_mlw_infer_endpoint_predict_framingham_heart
+ENV AZ_MLW_INFER_ENDPOINT_KEY_PREDICT_FRAMINGHAM_HEART=$az_mlw_infer_endpoint_key_predict_framingham_heart
 
 
 WORKDIR /app
