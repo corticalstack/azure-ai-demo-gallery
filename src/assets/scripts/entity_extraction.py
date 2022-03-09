@@ -15,8 +15,7 @@ class App:
 
     
     def main(self):
-        # Demo example using the Python SDK
-        st.write("Key phrase extraction can be used to quickly identify the main concepts in text.")
+        st.write("Entity extraction can identify and categorize entities in unstructured text. For example: people, places, organizations, and quantities.")
 
         credential = AzureKeyCredential(st.session_state.cog_key)
         cog_client = TextAnalyticsClient(endpoint=st.session_state.cog_endpoint, credential=credential)

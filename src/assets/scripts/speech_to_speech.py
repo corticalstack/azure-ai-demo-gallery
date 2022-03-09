@@ -52,10 +52,10 @@ class App:
         )
 
     def main(self):
-        st.write("Example of real-time quick and accurate audio transcription to text, which could then be used for search, analytics and inititating events")
+        st.write("Example of real-time quick and accurate audio language translation, first by transcription to text, which is then speech synthesized into the selected language.")
         st.markdown("Press **START** to record from your selected audio input device")
-        st.markdown("For example, you could say **NASA an independent agency of the U.S. government responsible for the civilian space program** or **The Empire State Building is a 102-story Art Deco skyscraper in Midtown Manhattan in New York City**")
-        st.markdown("Note currently **the initialisation of the audio recorder is slow**, please wait up to 30s for the Status Indicator to change from **Not Recording** to **Recording**")
+        st.markdown("For example, you could say **The Empire State Building is a 102-story Art Deco skyscraper**")
+        st.markdown("Note currently **the initialisation of the audio recorder is slow** - after pressing **START** please wait up to 30s for the Status Indicator to change from **Not Recording** to **Recording**")
         st.write("Once translation completes, press play to hear the results in the locale language voice")
        
         selected_target_lang = st.selectbox('Target Language',

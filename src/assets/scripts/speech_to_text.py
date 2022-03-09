@@ -74,7 +74,7 @@ class App:
         st.write("Example of real-time quick and accurate audio transcription to text, which could then be used for search, analytics and inititating events")
         st.markdown("Press **START** to record from your selected audio input device")
         st.markdown("For example, you could say **Switch off the bedside lamps** or **Book flights for New York**")
-        st.markdown("Note currently **the initialisation of the audio recorder is slow**, please wait up to 30s for the Status Indicator to change from **Not Recording** to **Recording**")
+        st.markdown("Note currently **the initialisation of the audio recorder is slow** - after pressing **START** please wait up to 30s for the Status Indicator to change from **Not Recording** to **Recording**")
 
         wavpath = "temp/speech_to_text_audio.wav"
         self.webrtc_audio_recorder(wavpath)
@@ -89,7 +89,6 @@ class App:
         
         if st.session_state['recording_status'] == 'recording':
             st.session_state['recording_status'] = None
-            st.write("Checking wav exists")
             if Path(wavpath).exists():
                 speech_config = speech_sdk.SpeechConfig(st.session_state.cog_key, st.session_state.cog_region)
                 audio_config = speech_sdk.AudioConfig(filename=wavpath)

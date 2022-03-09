@@ -30,16 +30,15 @@ class App:
         st.markdown("**CLICK** any image below to see if the Read API can detect text")
 
         images = [
+                "https://csairesearchssst.blob.core.windows.net/samples/bookflipping.png",
                 "https://csairesearchssst.blob.core.windows.net/samples/speccoll.jpg",
-                "https://csairesearchssst.blob.core.windows.net/samples/bowers.jpg",
-                "https://csairesearchssst.blob.core.windows.net/samples/robertson.jpg",
-                "https://csairesearchssst.blob.core.windows.net/samples/bookflipping.png"
+                "https://csairesearchssst.blob.core.windows.net/samples/bowers.jpg"
             ]
         clicked = clickable_images(
             images,
             titles=[f"Image #{str(i)}" for i in range(5)],
             div_style={"display": "flex", "justify-content": "center", "flex-wrap": "wrap"},
-            img_style={"margin": "5px", "height": "450px"},
+            img_style={"margin": "5px", "height": "550px"},
         )
 
         st.markdown(f"**You clicked image #{clicked}**" if clicked > -1 else "**No image clicked**")

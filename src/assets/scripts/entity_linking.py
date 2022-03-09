@@ -15,8 +15,7 @@ class App:
 
     
     def main(self):
-        # Demo example using the Python SDK
-        st.write("Key phrase extraction can be used to quickly identify the main concepts in text.")
+        st.write("Entity linking identifies and disambiguates the identity of entities found in text, returning a list of recognized entities with links to associated wikipedia pages.")
 
         credential = AzureKeyCredential(st.session_state.cog_key)
         cog_client = TextAnalyticsClient(endpoint=st.session_state.cog_endpoint, credential=credential)
